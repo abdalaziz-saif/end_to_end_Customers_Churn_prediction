@@ -16,13 +16,16 @@ from sklearn.preprocessing import LabelEncoder
 #_________________________________________________________________________________
 
 # add Number of services feature
-num_services = service_cols = ['OnlineSecurity_Yes', 'OnlineBackup_Yes',
-      'DeviceProtection_Yes', 'TechSupport_Yes',
-      'StreamingTV_Yes', 'StreamingMovies_Yes']
+# These are the original categorical columns (before one-hot encoding)
+service_cols = ['OnlineSecurity', 'OnlineBackup',
+      'DeviceProtection', 'TechSupport',
+      'StreamingTV', 'StreamingMovies']
 
 def add_features(df: pd.DataFrame) -> pd.DataFrame:
 
-    df['Num_of_services'] = df[[c for c in num_services if c in df.columns]].sum(axis=1)
+    # Count how many services the customer subscribes to (value == 'Yes')
+    present_cols = [c for c in service_cols if c in df.columns]
+    df['Num_of_services'] = df[present_cols].apply(lambda row: (row == 'Yes').sum(), axis=1)
 
     # add tenure bucket
     df['tenure_bucket'] = pd.cut(df['tenure'],

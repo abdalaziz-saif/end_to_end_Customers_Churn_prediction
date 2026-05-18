@@ -19,7 +19,10 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from xgboost import XGBClassifier
 from catboost import CatBoostClassifier
 from scipy import stats
-
+import matplotlib.pyplot as plt
+import seaborn as sns
+import shap
+import os
 
 # _____________________________________________
 
@@ -321,9 +324,7 @@ def plot_results(results: pd.DataFrame, outputdir: str = None) -> None:
     """
     Plot validation accuracy bar chart and CV vs Val accuracy line chart
     """
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    import os
+
 
     # Bar plot
     plt.figure(figsize=(10, 6))
@@ -357,14 +358,19 @@ def plot_results(results: pd.DataFrame, outputdir: str = None) -> None:
 # Feature Importance (SHAP)
 #_______________________________________________
 
-def shap_feature_importance(model, X_val: pd.DataFrame) -> None:
+def shap_feature_importance(model, X_val: pd.DataFrame , outputdir: str = None) -> None:
     """
     Compute and plot SHAP feature importance for a given model
     """
-    import shap
 
     explainer = shap.Explainer(model)
     shap_values = explainer(X_val)
-
     shap.summary_plot(shap_values)
+    plt.show()
     shap.plots.bar(shap_values)
+    plt.show()
+    if outputdir:
+        os.makedirs(outputdir, exist_ok=True)
+        plt.savefig(os.path.join(outputdir, 'shap_summary_plot.png'))
+        plt.savefig(os.path.join(outputdir, 'shap_bar_plot.png'))
+
